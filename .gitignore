@@ -11,6 +11,8 @@ FlexUnit4FluintExtensions/libs/*
 FlexUnit4CIListener/target/*
 FlexUnit4CIListener/libs/*
 FlexUnit4AirCIListener/bin/*
+FlexUnit4AirCIListener/libs/*
+FlexUnit4AirCIListener/target/*
 FlexUnit4FlexCoverListener/bin/*
 FlexUnit4FlexCoverListener/libs/*
 FlexUnit4FlexCoverListener/target/*
@@ -25,3 +27,4 @@ FlexUnit4UIListener/target/*
 .metadata
 .actionScriptProperties
 */.settings
+/*.zip
