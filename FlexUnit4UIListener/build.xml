@@ -96,7 +96,7 @@
          <jvmarg value="-Xmx256M" />
          <arg line="+flexlib '${FLEX_HOME}/frameworks'" />
          <arg line="-compatibility-version=3.0.0" />
-         <arg line="-namespace http://www.adobe.com/2006/mxml ${FLEX_HOME}/frameworks/mxml-manifest.xml" />
+         <arg line="-namespace http://www.adobe.com/2006/mxml '${FLEX_HOME}/frameworks/mxml-manifest.xml'" />
          <arg line="-namespace ${build.namespace} ${src.loc}/FlexUnit4UIRunner-manifest.xml" />
          <arg line="-include-namespaces ${build.namespace}" />
          <arg line="-include-classes ${src.class-list}" />
