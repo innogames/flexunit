@@ -12,12 +12,13 @@ public class CustomPlayerCommand implements PlayerCommand
 {
    private DefaultPlayerCommand proxiedCommand;
    private File executable;
+   private String extraArguments;
 
    public PlayerCommand getProxiedCommand()
    {
       return proxiedCommand;
    }
-   
+
    public void setProxiedCommand(DefaultPlayerCommand playerCommand)
    {
       this.proxiedCommand = playerCommand;
@@ -27,22 +28,22 @@ public class CustomPlayerCommand implements PlayerCommand
    {
       return executable;
    }
-   
+
    public void setExecutable(File executable)
    {
       this.executable = executable;
    }
-   
+
    public void setProject(Project project)
    {
       proxiedCommand.setProject(project);
    }
-   
+
    public void setSwf(File swf)
    {
       proxiedCommand.setSwf(swf);
    }
-   
+
    public String getUrl() {
 	   return proxiedCommand.getUrl();
    }
@@ -50,38 +51,52 @@ public class CustomPlayerCommand implements PlayerCommand
    public void setUrl(String url) {
 	   proxiedCommand.setUrl(url);
    }
-   
+
+   public String getExtraArguments() {
+	   return this.extraArguments;
+   }
+
+   public void setExtraArguments(String extraArguments) {
+	   this.extraArguments = extraArguments;
+   }
+
    public File getFileToExecute()
    {
       return proxiedCommand.getFileToExecute();
    }
-   
+
    public void prepare()
    {
       proxiedCommand.prepare();
-      
+
       proxiedCommand.getCommandLine().setExecutable(executable.getAbsolutePath());
       proxiedCommand.getCommandLine().clearArgs();
-      
+
+
+      if(getExtraArguments() != null)
+      {
+          proxiedCommand.getCommandLine().addArguments(getExtraArguments().split("\\s"));
+      }
+
       if(getUrl() != null)
-      {    	  
+      {
     	  proxiedCommand.getCommandLine().addArguments(new String[]{getUrl()});
-      } 
-      else 
-      {  
+      }
+      else
+      {
     	  proxiedCommand.getCommandLine().addArguments(new String[]{getFileToExecute().getAbsolutePath()});
       }
 
    }
-   
+
    public Process launch() throws IOException
    {
       LoggingUtil.log(proxiedCommand.getCommandLine().describeCommand());
       
       //execute the command directly
       return Runtime.getRuntime().exec(
-            proxiedCommand.getCommandLine().getCommandline(), 
-            getJointEnvironment(), 
+            proxiedCommand.getCommandLine().getCommandline(),
+            getJointEnvironment(),
             proxiedCommand.getProject().getBaseDir());
    }
 
@@ -92,7 +107,7 @@ public class CustomPlayerCommand implements PlayerCommand
 
    /**
     * Combine process environment variables and command's environment to emulate the default
-    * behavior of the Execute task.  Needed especially when user expects environment to be 
+    * behavior of the Execute task.  Needed especially when user expects environment to be
     * available to custom command (e.g. - xvnc with player not on path).
     */
    @SuppressWarnings("unchecked")
@@ -102,7 +117,7 @@ public class CustomPlayerCommand implements PlayerCommand
       String[] environment = new String[procEnvironment.size() + proxiedCommand.getEnvironment().length];
       System.arraycopy(procEnvironment.toArray(), 0, environment, 0, procEnvironment.size());
       System.arraycopy(proxiedCommand.getEnvironment(), 0, environment, procEnvironment.size(), proxiedCommand.getEnvironment().length);
-      
+
       return environment;
    }
 }

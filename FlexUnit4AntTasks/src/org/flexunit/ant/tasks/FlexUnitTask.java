@@ -1,5 +1,7 @@
 package org.flexunit.ant.tasks;
 
+import java.io.File;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DynamicElement;
 import org.apache.tools.ant.Project;
@@ -7,6 +9,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.flexunit.ant.tasks.configuration.TaskConfiguration;
 import org.flexunit.ant.tasks.types.LoadConfig;
+import org.flexunit.ant.LoggingUtil;
 
 //TODO: Add AIR and Flex 4 support to compilation
 public class FlexUnitTask extends Task implements DynamicElement
@@ -180,6 +183,16 @@ public class FlexUnitTask extends Task implements DynamicElement
    public void setDebug(boolean value)
    {
        configuration.setDebug(value);
+   }
+
+   public void setPrecompiledAppDescriptor(String value)
+   {
+	   configuration.getTestRunConfiguration().setPrecompiledAppDescriptor(new File(value));
+   }
+
+   public void setExtraArguments(String value)
+   {
+	   configuration.getTestRunConfiguration().setExtraArguments(value);
    }
 
 	public Object createDynamicElement(String arg0) throws BuildException 

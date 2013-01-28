@@ -13,6 +13,7 @@ public class TestRunConfiguration implements StepConfiguration
 
    private String player;
    private File command = null;
+   private String extraArguments;
    private int display = 99;
    private boolean failOnTestFailure = false;
    private String failureProperty = "flexunit.failed";
@@ -37,10 +38,20 @@ public class TestRunConfiguration implements StepConfiguration
    {
       this.command = command;
    }
-   
+
+   public String getExtraArguments()
+   {
+       return extraArguments;
+   }
+
+   public void setExtraArguments(String extraArguments)
+   {
+       this.extraArguments = extraArguments;
+   }
+
    public boolean isCustomCommand()
    {
-      return command != null;
+       return command != null;
    }
 
    public int getDisplay()

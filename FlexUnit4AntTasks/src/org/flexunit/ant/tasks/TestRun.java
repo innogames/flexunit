@@ -11,6 +11,7 @@ import org.flexunit.ant.FlexUnitSocketServer;
 import org.flexunit.ant.FlexUnitSocketThread;
 import org.flexunit.ant.LoggingUtil;
 import org.flexunit.ant.launcher.commands.player.AdlCommand;
+import org.flexunit.ant.launcher.commands.player.CustomPlayerCommand;
 import org.flexunit.ant.launcher.commands.player.PlayerCommand;
 import org.flexunit.ant.launcher.commands.player.PlayerCommandFactory;
 import org.flexunit.ant.launcher.contexts.ExecutionContext;
@@ -21,10 +22,10 @@ import org.flexunit.ant.tasks.configuration.TestRunConfiguration;
 public class TestRun
 {
    private final String TRUE = "true";
-   
+
    private TestRunConfiguration configuration;
    private Project project;
-   
+
    private Reports reports;
 
    public TestRun(Project project, TestRunConfiguration configuration)
@@ -33,11 +34,11 @@ public class TestRun
       this.configuration = configuration;
       this.reports = new Reports();
    }
-   
+
    public void run() throws BuildException
    {
       configuration.log();
-      
+
       try
       {
          // setup daemon
@@ -46,10 +47,10 @@ public class TestRun
          // run the execution context and player
          PlayerCommand player = obtainPlayer();
          ExecutionContext context = obtainContext(player);
-         
+
          //start the execution context
          context.start();
-         
+
          //launch the player
          Process process = player.launch();
 
@@ -62,57 +63,63 @@ public class TestRun
          // print summaries and check for failure
          analyzeReports();
 
-      } 
+      }
       catch (Exception e)
       {
          throw new BuildException(e);
       }
    }
-   
+
    /**
     * Fetch the player command to execute the SWF.
-    * 
+    *
     * @return PlayerCommand based on user config
     */
    protected PlayerCommand obtainPlayer()
    {
       // get command from factory
       PlayerCommand command = PlayerCommandFactory.createPlayer(
-            configuration.getOs(), 
-            configuration.getPlayer(), 
-            configuration.getCommand(), 
+            configuration.getOs(),
+            configuration.getPlayer(),
+            configuration.getCommand(),
             configuration.isLocalTrusted());
-      
+
       command.setProject(project);
       command.setSwf(configuration.getSwf());
       command.setUrl(configuration.getUrl());
-      
-      if(command instanceof AdlCommand) 
+
+      PlayerCommand actualCommand = command instanceof CustomPlayerCommand ? ((CustomPlayerCommand)command).getProxiedCommand() : command;
+
+      if(actualCommand instanceof AdlCommand)
       {
-    	  ((AdlCommand)command).setPrecompiledAppDescriptor(configuration.getPrecompiledAppDescriptor());
+          ((AdlCommand)actualCommand).setPrecompiledAppDescriptor(configuration.getPrecompiledAppDescriptor());
       }
-      
+
+      if(configuration.getExtraArguments() != null && command instanceof CustomPlayerCommand){
+          ((CustomPlayerCommand)command).setExtraArguments(configuration.getExtraArguments());
+      }
+
       return command;
    }
-   
+
    /**
-    * 
+    *
     * @param player PlayerCommand which should be executed
     * @return Context to wrap the execution of the PlayerCommand
     */
    protected ExecutionContext obtainContext(PlayerCommand player)
    {
       ExecutionContext context = ExecutionContextFactory.createContext(
-            configuration.getOs(), 
-            configuration.isHeadless(), 
+            configuration.getOs(),
+            configuration.isHeadless(),
             configuration.getDisplay());
-      
+
       context.setProject(project);
       context.setCommand(player);
-      
+
       return context;
    }
-   
+
    /**
     * Create a server socket for receiving the test reports from FlexUnit. We
     * read and write the test reports inside of a Thread.
@@ -122,8 +129,8 @@ public class TestRun
       LoggingUtil.log("Setting up server process ...");
 
       // Create server for use by thread
-      FlexUnitSocketServer server = new FlexUnitSocketServer(configuration.getPort(), 
-            configuration.getSocketTimeout(), configuration.getServerBufferSize(), 
+      FlexUnitSocketServer server = new FlexUnitSocketServer(configuration.getPort(),
+            configuration.getSocketTimeout(), configuration.getServerBufferSize(),
             configuration.usePolicyFile());
 
       // Get handle to specialized object to run in separate thread.
